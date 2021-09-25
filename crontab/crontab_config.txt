@@ -1,0 +1,34 @@
+
+# 清理没有同本站任何用户产生关联的 toot
+0 4 * * * RAILS_ENV=production /home/mastodon/live/bin/tootctl statuses remove
+# 清理缓存的外站媒体文件
+30 4 * * * RAILS_ENV=production /home/mastodon/live/bin/tootctl media remove --days=14
+# 清理未关联任何 toot 的“无主”媒体文件
+0 5 * * * RAILS_ENV=production /home/mastodon/live/bin/tootctl media remove-orphans
+
+
+0 4 * * * /bin/bash /home/mastodon/my_script/status_remove.sh >> $HOME/crontab.log 2>&1
+30 4 * * * /bin/bash /home/mastodon/my_script/media_remove.sh >> $HOME/crontab.log 2>&1
+0 5 * * * /bin/bash /home/mastodon/my_script/orphans_remove.sh >> $HOME/crontab.log 2>&1
+
+media_remove.sh
+
+#!/bin/bash
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+RAILS_ENV=production /home/mastodon/live/bin/tootctl media remove --days=14
+
+status_remove.sh
+
+#!/bin/bash
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+RAILS_ENV=production /home/mastodon/live/bin/tootctl statuses remove
+
+orphans_remove.sh
+
+#!/bin/bash
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+RAILS_ENV=production /home/mastodon/live/bin/tootctl media remove-orphans
+
